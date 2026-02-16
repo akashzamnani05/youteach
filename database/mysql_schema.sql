@@ -236,6 +236,122 @@ CREATE TABLE webinar_registrations (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
+-- DOCUMENTS: FOLDERS
+-- ============================================
+
+CREATE TABLE document_folders (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    name VARCHAR(255) NOT NULL,
+    teacher_profile_id CHAR(36) NOT NULL,           -- scope: which teacher's space this belongs to
+    parent_folder_id CHAR(36) NULL,
+    created_by_user_id CHAR(36) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (teacher_profile_id) REFERENCES teacher_profiles(id) ON DELETE CASCADE,
+    FOREIGN KEY (parent_folder_id) REFERENCES document_folders(id) ON DELETE CASCADE,
+    FOREIGN KEY (created_by_user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_folders_teacher (teacher_profile_id),
+    INDEX idx_folders_parent (parent_folder_id),
+    INDEX idx_folders_user (created_by_user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
+-- DOCUMENTS: FILES
+-- ============================================
+
+CREATE TABLE document_files (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    name VARCHAR(255) NOT NULL,
+    original_filename VARCHAR(255) NOT NULL,
+    mime_type VARCHAR(127) NOT NULL,
+    size_bytes BIGINT NOT NULL DEFAULT 0,
+    teacher_profile_id CHAR(36) NOT NULL,           -- scope: which teacher's space this belongs to
+    folder_id CHAR(36) NULL,
+    uploaded_by_user_id CHAR(36) NOT NULL,
+    storage_path VARCHAR(1000) NOT NULL,
+    download_url TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (teacher_profile_id) REFERENCES teacher_profiles(id) ON DELETE CASCADE,
+    FOREIGN KEY (folder_id) REFERENCES document_folders(id) ON DELETE SET NULL,
+    FOREIGN KEY (uploaded_by_user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_files_teacher (teacher_profile_id),
+    INDEX idx_files_folder (folder_id),
+    INDEX idx_files_user (uploaded_by_user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
+-- BATCHES (Live teaching groups)
+-- ============================================
+
+CREATE TABLE batches (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    teacher_profile_id CHAR(36) NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    meeting_link TEXT NOT NULL,
+    class_time TIME NOT NULL,
+    duration_minutes INT NOT NULL DEFAULT 60,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (teacher_profile_id) REFERENCES teacher_profiles(id) ON DELETE CASCADE,
+    INDEX idx_batches_teacher (teacher_profile_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE batch_students (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    batch_id CHAR(36) NOT NULL,
+    student_user_id CHAR(36) NOT NULL,
+    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (batch_id) REFERENCES batches(id) ON DELETE CASCADE,
+    FOREIGN KEY (student_user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_batch_student (batch_id, student_user_id),
+    INDEX idx_batch_students_batch (batch_id),
+    INDEX idx_batch_students_student (student_user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE batch_sessions (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    batch_id CHAR(36) NOT NULL,
+    session_date DATE NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (batch_id) REFERENCES batches(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_batch_date (batch_id, session_date),
+    INDEX idx_sessions_batch (batch_id),
+    INDEX idx_sessions_date (session_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE batch_attendance (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    session_id CHAR(36) NOT NULL,
+    student_user_id CHAR(36) NOT NULL,
+    status ENUM('present', 'absent', 'late') NOT NULL DEFAULT 'absent',
+    marked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (session_id) REFERENCES batch_sessions(id) ON DELETE CASCADE,
+    FOREIGN KEY (student_user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_attendance (session_id, student_user_id),
+    INDEX idx_attendance_session (session_id),
+    INDEX idx_attendance_student (student_user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
+-- ANNOUNCEMENTS
+-- ============================================
+
+CREATE TABLE announcements (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    teacher_profile_id CHAR(36) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (teacher_profile_id) REFERENCES teacher_profiles(id) ON DELETE CASCADE,
+    INDEX idx_announcements_teacher (teacher_profile_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
 -- SAMPLE DATA INSERTION (Optional - for testing)
 -- ============================================
 

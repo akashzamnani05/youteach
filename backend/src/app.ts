@@ -15,6 +15,10 @@ import moduleRoutes from './routes/module.routes';
 import courseVideoRoutes from './routes/course-video.routes'; 
 import studentCourseRoutes from './routes/student-course.routes';
 import studentCourseContentRoutes from './routes/student-course-content.routes'; // ADD THIS
+import documentsRoutes from './routes/documents.routes';
+import announcementsRoutes from './routes/announcements.routes';
+import batchesRoutes from './routes/batches.routes';
+import batchSessionsRoutes from './routes/batch-sessions.routes';
 
 // Load environment variables
 dotenv.config();
@@ -54,6 +58,10 @@ app.use('/api/course-videos', courseVideoRoutes);
 app.use('/api/student-courses', studentCourseRoutes);
 app.use('/api/student/courses', studentCourseRoutes); 
 app.use('/api/student-course-content', studentCourseContentRoutes); // ADD THIS
+app.use('/api/documents', documentsRoutes);
+app.use('/api/announcements', announcementsRoutes);
+app.use('/api/batches', batchesRoutes);
+app.use('/api/batch-sessions', batchSessionsRoutes);
 
 // 404 Handler
 app.use((_req: Request, res: Response) => {

@@ -4,7 +4,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, LayoutDashboard, Video, Users, Settings, X, Menu } from 'lucide-react';
+import { BookOpen, LayoutDashboard, Video, Users, Settings, X, Menu, FolderOpen, Megaphone, Layers } from 'lucide-react';
 import { useState } from 'react';
 
 interface NavItem {
@@ -26,6 +26,9 @@ export default function Sidebar({ role }: SidebarProps) {
     { name: 'Courses', href: '/teacher/courses', icon: BookOpen },
     { name: 'Webinars', href: '/teacher/webinars', icon: Video },
     { name: 'Students', href: '/teacher/students', icon: Users },
+    { name: 'Documents', href: '/teacher/documents', icon: FolderOpen },
+    { name: 'Announcements', href: '/teacher/announcements', icon: Megaphone },
+    { name: 'Batches', href: '/teacher/batches', icon: Layers },
     { name: 'Settings', href: '/teacher/settings', icon: Settings },
   ];
 
@@ -33,6 +36,9 @@ export default function Sidebar({ role }: SidebarProps) {
     { name: 'Dashboard', href: '/student/dashboard', icon: LayoutDashboard },
     { name: 'Courses', href: '/student/courses', icon: BookOpen },
     { name: 'Webinars', href: '/student/webinars', icon: Video },
+    { name: 'Documents', href: '/student/documents', icon: FolderOpen },
+    { name: 'Announcements', href: '/student/announcements', icon: Megaphone },
+    { name: 'Batches', href: '/student/batches', icon: Layers },
     { name: 'Settings', href: '/student/settings', icon: Settings },
   ];
 

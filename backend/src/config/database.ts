@@ -17,6 +17,10 @@ const pool = mysql.createPool({
   queueLimit: 0,
   enableKeepAlive: true,
   keepAliveInitialDelay: 0,
+  // Return DATE / DATETIME / TIMESTAMP columns as plain strings ("YYYY-MM-DD")
+  // instead of JS Date objects, which get serialised to UTC ISO strings and
+  // shift the date backward in UTC+5:30 timezones.
+  dateStrings: true,
 });
 
 // Test connection
