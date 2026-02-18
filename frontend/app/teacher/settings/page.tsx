@@ -2,13 +2,13 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import DashboardLayout from '@/components/DashboardLayout';
 import { User, Bell, Lock, Youtube, CheckCircle, AlertCircle, Loader2, ExternalLink, LogOut } from 'lucide-react';
 import { googleOAuthApi, GoogleConnectionStatus } from '@/lib/google-oauth';
 
-export default function TeacherSettings() {
+function TeacherSettingsContent() {
   const searchParams = useSearchParams();
   const [ytStatus, setYtStatus] = useState<GoogleConnectionStatus | null>(null);
   const [ytLoading, setYtLoading] = useState(true);
@@ -165,5 +165,13 @@ export default function TeacherSettings() {
         </div>
       </div>
     </DashboardLayout>
+  );
+}
+
+export default function TeacherSettings() {
+  return (
+    <Suspense>
+      <TeacherSettingsContent />
+    </Suspense>
   );
 }
