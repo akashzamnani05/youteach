@@ -372,77 +372,7 @@ CREATE TABLE announcements (
     INDEX idx_announcements_teacher (teacher_profile_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- ============================================
--- SAMPLE DATA INSERTION (Optional - for testing)
--- ============================================
 
--- Sample User (Teacher)
-INSERT INTO users (id, email, password_hash, full_name, phone) VALUES
-('550e8400-e29b-41d4-a716-446655440001', 'john.doe@example.com', '$2b$10$hash...', 'John Doe', '+1234567890');
-
--- Sample Teacher Profile
-INSERT INTO teacher_profiles (id, user_id, bio, headline, specializations, website_slug, hourly_rate) VALUES
-('550e8400-e29b-41d4-a716-446655440011', 
- '550e8400-e29b-41d4-a716-446655440001',
- 'Experienced mathematics tutor with 10+ years of experience',
- 'Expert Math Tutor - Making Math Easy',
- '["Algebra", "Calculus", "Geometry"]',
- 'john-doe',
- 50.00);
-
--- Sample User (Student)
-INSERT INTO users (id, email, password_hash, full_name) VALUES
-('550e8400-e29b-41d4-a716-446655440002', 'jane.smith@example.com', '$2b$10$hash...', 'Jane Smith');
-
--- Sample Student Profile
-INSERT INTO student_profiles (id, user_id, interests, education_level) VALUES
-('550e8400-e29b-41d4-a716-446655440022',
- '550e8400-e29b-41d4-a716-446655440002',
- '["Mathematics", "Programming", "Science"]',
- 'High School');
-
--- Sample Course
-INSERT INTO courses (id, teacher_id, title, slug, description, short_description, price, level, is_published) VALUES
-('550e8400-e29b-41d4-a716-446655440033',
- '550e8400-e29b-41d4-a716-446655440011',
- 'Complete Algebra Masterclass',
- 'complete-algebra-masterclass',
- 'Master algebra from basics to advanced topics with practical examples and exercises',
- 'Learn algebra from scratch with an experienced tutor',
- 49.99,
- 'beginner',
- TRUE);
-
--- Sample Module
-INSERT INTO course_modules (id, course_id, title, description, order_index) VALUES
-('550e8400-e29b-41d4-a716-446655440044',
- '550e8400-e29b-41d4-a716-446655440033',
- 'Introduction to Algebra',
- 'Learn the fundamentals of algebraic expressions and equations',
- 1);
-
--- Sample Content (Video)
-INSERT INTO course_content (id, module_id, content_type, title, description, youtube_video_id, duration_minutes, order_index, is_free_preview) VALUES
-('550e8400-e29b-41d4-a716-446655440055',
- '550e8400-e29b-41d4-a716-446655440044',
- 'video',
- 'What is Algebra?',
- 'Introduction to algebraic concepts and their real-world applications',
- 'dQw4w9WgXcQ',
- 15,
- 1,
- TRUE);
-
--- Sample Content (Document)
-INSERT INTO course_content (id, module_id, content_type, title, description, google_drive_file_id, file_size_mb, order_index) VALUES
-('550e8400-e29b-41d4-a716-446655440056',
- '550e8400-e29b-41d4-a716-446655440044',
- 'document',
- 'Algebra Basics - Study Guide',
- 'Comprehensive study guide covering basic algebraic concepts',
- '1abc123def456ghi789jkl',
- 2.5,
- 2);
 
 
 
