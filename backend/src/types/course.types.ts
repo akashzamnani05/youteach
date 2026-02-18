@@ -36,6 +36,7 @@ export interface CreateCourseData {
   title: string;
   description?: string;
   short_description?: string;
+  thumbnail_url?: string;
   price?: number;
   level?: 'beginner' | 'intermediate' | 'advanced' | 'all';
   language?: string;

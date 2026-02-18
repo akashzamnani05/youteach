@@ -3,6 +3,7 @@
 import { Router } from 'express';
 import { CourseController } from '../controllers/course.controller';
 import { authenticate } from '../middleware/auth.middleware';
+import { uploadImage } from '../middleware/upload.middleware';
 
 const router = Router();
 
@@ -13,6 +14,10 @@ router.use(authenticate);
 
 // GET /api/courses - Get all courses for logged-in teacher
 router.get('/', CourseController.getAllCourses);
+
+// POST /api/courses/thumbnail - Upload course thumbnail to Firebase Storage
+// Must be before /:id routes to avoid route conflict
+router.post('/thumbnail', uploadImage.single('thumbnail'), CourseController.uploadThumbnail);
 
 // GET /api/courses/:courseId/modules - Get all modules for a course
 router.get('/:courseId/modules', CourseController.getModulesByCourse);
@@ -28,14 +33,9 @@ router.put('/:id', CourseController.updateCourse);
 
 // DELETE /api/courses/:id - Delete course
 router.delete('/:id', CourseController.deleteCourse);
+
 // Reorder modules
 router.put('/:id/reorder-modules', CourseController.reorderModules);
-
-
-
-// ========================================
-// ADD TO: src/routes/course.routes.ts
-// ========================================
 
 // Get all enrolled students for a course
 router.get('/:id/students', CourseController.getEnrolledStudents);

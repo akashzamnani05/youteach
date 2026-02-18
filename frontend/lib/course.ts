@@ -113,4 +113,14 @@ export const courseApi = {
   unenrollStudent: async (courseId: string, studentId: string): Promise<void> => {
     await apiClient.delete(`/courses/${courseId}/students/${studentId}`);
   },
+
+  // Upload course thumbnail to Firebase Storage, returns public URL
+  uploadThumbnail: async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append('thumbnail', file);
+    const response = await apiClient.post('/courses/thumbnail', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data.data.thumbnail_url;
+  },
 };

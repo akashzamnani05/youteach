@@ -19,6 +19,9 @@ import documentsRoutes from './routes/documents.routes';
 import announcementsRoutes from './routes/announcements.routes';
 import batchesRoutes from './routes/batches.routes';
 import batchSessionsRoutes from './routes/batch-sessions.routes';
+import calendarRoutes from './routes/calendar.routes';
+import dashboardRoutes from './routes/dashboard.routes';
+import googleOAuthRoutes from './routes/google-oauth.routes';
 
 // Load environment variables
 dotenv.config();
@@ -48,6 +51,7 @@ app.get('/health', (_req: Request, res: Response) => {
 });
 
 // API Routes
+app.use('/api/auth/google', googleOAuthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/webinars', webinarRoutes);
@@ -62,6 +66,8 @@ app.use('/api/documents', documentsRoutes);
 app.use('/api/announcements', announcementsRoutes);
 app.use('/api/batches', batchesRoutes);
 app.use('/api/batch-sessions', batchSessionsRoutes);
+app.use('/api/calendar', calendarRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // 404 Handler
 app.use((_req: Request, res: Response) => {

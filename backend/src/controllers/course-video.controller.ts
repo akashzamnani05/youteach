@@ -3,6 +3,7 @@
 import { Request, Response } from 'express';
 import { CourseVideoService } from '../services/course-video.service';
 import { YouTubeService } from '../services/youtube.service';
+import { GoogleOAuthService } from '../services/google-oauth.service';
 import { AuthService } from '../services/auth.service';
 import { CreateCourseVideoData, UpdateCourseVideoData } from '../types/course-video.types';
 import fs from 'fs';
@@ -174,6 +175,16 @@ export class CourseVideoController {
         return;
       }
 
+      // Check if teacher has connected their YouTube account
+      const ytStatus = await GoogleOAuthService.getConnectionStatus(userWithRole.teacher_profile_id);
+      if (!ytStatus.connected) {
+        res.status(403).json({
+          success: false,
+          message: 'Connect your YouTube account in Settings before uploading videos.',
+        });
+        return;
+      }
+
       // Check if file was uploaded
       if (!req.file) {
         res.status(400).json({
@@ -209,16 +220,23 @@ export class CourseVideoController {
         userWithRole.teacher_profile_id
       );
 
-      // Upload to YouTube
-      const youtubeResponse = await YouTubeService.uploadVideo(uploadedFilePath, {
-        title: videoData.title,
-        description: videoData.description,
-        privacyStatus: 'unlisted',
-        tags: ['course', 'education'],
-      });
+      // Upload to YouTube (teacher's channel)
+      const youtubeResponse = await YouTubeService.uploadVideo(
+        uploadedFilePath,
+        {
+          title: videoData.title,
+          description: videoData.description,
+          privacyStatus: 'unlisted',
+          tags: ['course', 'education'],
+        },
+        userWithRole.teacher_profile_id
+      );
 
       // Get video duration
-      const videoDetails = await YouTubeService.getVideoDetails(youtubeResponse.videoId);
+      const videoDetails = await YouTubeService.getVideoDetails(
+        youtubeResponse.videoId,
+        userWithRole.teacher_profile_id
+      );
       const durationMinutes = YouTubeService.parseDuration(
         videoDetails.contentDetails.duration
       );
@@ -293,11 +311,15 @@ export class CourseVideoController {
 
       // Update YouTube metadata if title or description changed
       if (video.youtube_video_id && (data.title || data.description)) {
-        await YouTubeService.updateVideoMetadata(video.youtube_video_id, {
-          title: data.title || video.title,
-          description: data.description || video.description,
-          privacyStatus: 'unlisted',
-        });
+        await YouTubeService.updateVideoMetadata(
+          video.youtube_video_id,
+          {
+            title: data.title || video.title,
+            description: data.description || video.description,
+            privacyStatus: 'unlisted',
+          },
+          userWithRole.teacher_profile_id
+        );
       }
 
       res.status(200).json({
@@ -354,7 +376,10 @@ export class CourseVideoController {
       // Delete from YouTube if exists
       if (video.youtube_video_id) {
         try {
-          await YouTubeService.deleteVideo(video.youtube_video_id);
+          await YouTubeService.deleteVideo(
+            video.youtube_video_id,
+            userWithRole.teacher_profile_id
+          );
         } catch (error) {
           console.error('Failed to delete from YouTube:', error);
           // Continue with database deletion even if YouTube deletion fails

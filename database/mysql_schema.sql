@@ -51,12 +51,31 @@ CREATE TABLE teacher_profiles (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
+-- TEACHER GOOGLE OAUTH TOKENS (per-teacher YouTube integration)
+-- ============================================
+
+CREATE TABLE teacher_google_tokens (
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    teacher_profile_id CHAR(36) NOT NULL UNIQUE,
+    google_email VARCHAR(255) NOT NULL,
+    access_token TEXT NOT NULL,
+    refresh_token TEXT NOT NULL,
+    token_expiry TIMESTAMP NOT NULL,
+    scopes TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (teacher_profile_id) REFERENCES teacher_profiles(id) ON DELETE CASCADE,
+    INDEX idx_teacher_google_teacher (teacher_profile_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
 -- STUDENT PROFILES
 -- ============================================
 
 CREATE TABLE student_profiles (
     id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     user_id CHAR(36) NOT NULL UNIQUE,
+    teacher_id CHAR(36) NOT NULL,
     date_of_birth DATE,
     interests JSON,
     education_level VARCHAR(50),
@@ -64,7 +83,9 @@ CREATE TABLE student_profiles (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_student_user_id (user_id)
+    FOREIGN KEY (teacher_id) REFERENCES teacher_profiles(id) ON DELETE CASCADE,
+    INDEX idx_student_user_id (user_id),
+    INDEX idx_student_teacher (teacher_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================

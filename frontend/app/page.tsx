@@ -12,7 +12,7 @@ export default function HomePage() {
           <div className="flex justify-between items-center">
             <div className="flex items-center space-x-2">
               <BookOpen className="h-8 w-8 text-blue-600" />
-              <span className="text-2xl font-bold text-gray-900">TeachHub</span>
+              <span className="text-2xl font-bold text-gray-900">YouTeach</span>
             </div>
             <div className="flex items-center space-x-4">
               <Link
@@ -176,10 +176,10 @@ export default function HomePage() {
           <div className="text-center">
             <div className="flex items-center justify-center space-x-2 mb-4">
               <BookOpen className="h-6 w-6" />
-              <span className="text-xl font-bold">TeachHub</span>
+              <span className="text-xl font-bold">YouTeach</span>
             </div>
             <p className="text-gray-400">
-              © 2024 TeachHub. All rights reserved.
+              © 2024 YouTeach. All rights reserved.
             </p>
           </div>
         </div>

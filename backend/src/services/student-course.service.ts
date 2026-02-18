@@ -6,10 +6,10 @@ import { CourseWithEnrollment, EnrolledCourseDetails } from '../types/course.typ
 
 
 export class StudentCourseService {
-  // Get all available courses with enrollment status for student
+  // Get all available courses with enrollment status for student (scoped to their teacher)
   static async getAllCoursesForStudent(studentId: string): Promise<CourseWithEnrollment[]> {
     const courses = await query<CourseWithEnrollment>(
-      `SELECT 
+      `SELECT
         c.*,
         CASE WHEN e.id IS NOT NULL AND e.status IN ('active', 'completed') THEN TRUE ELSE FALSE END as is_enrolled,
         e.status as enrollment_status,
@@ -17,10 +17,11 @@ export class StudentCourseService {
         e.enrollment_date,
         e.last_accessed_at
        FROM courses c
+       JOIN student_profiles sp ON sp.id = ? AND sp.teacher_id = c.teacher_id
        LEFT JOIN enrollments e ON c.id = e.course_id AND e.student_id = ?
        WHERE c.is_published = TRUE
        ORDER BY c.created_at DESC`,
-      [studentId]
+      [studentId, studentId]
     );
 
     // Parse JSON fields
@@ -64,10 +65,10 @@ export class StudentCourseService {
     }));
   }
 
-  // Get single course by ID with enrollment info
+  // Get single course by ID with enrollment info (scoped to student's teacher)
   static async getCourseById(courseId: string, studentId: string): Promise<CourseWithEnrollment | null> {
     const courses = await query<CourseWithEnrollment>(
-      `SELECT 
+      `SELECT
         c.*,
         CASE WHEN e.id IS NOT NULL AND e.status IN ('active', 'completed') THEN TRUE ELSE FALSE END as is_enrolled,
         e.status as enrollment_status,
@@ -75,9 +76,10 @@ export class StudentCourseService {
         e.enrollment_date,
         e.last_accessed_at
        FROM courses c
+       JOIN student_profiles sp ON sp.id = ? AND sp.teacher_id = c.teacher_id
        LEFT JOIN enrollments e ON c.id = e.course_id AND e.student_id = ?
        WHERE c.id = ? AND c.is_published = TRUE`,
-      [studentId, courseId]
+      [studentId, studentId, courseId]
     );
 
     if (courses.length === 0) {

@@ -2,10 +2,12 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { courseVideoApi } from '../lib/courseVideo';
 import { CreateVideoData, VideoUploadProgress } from '@/types/courseVideo.types';
-import { Upload, X } from 'lucide-react';
+import { Upload, X, Youtube, AlertCircle, Loader2 } from 'lucide-react';
+import { googleOAuthApi } from '@/lib/google-oauth';
+import Link from 'next/link';
 
 interface VideoUploadFormProps {
   moduleId: string;
@@ -18,6 +20,7 @@ export const VideoUploadForm: React.FC<VideoUploadFormProps> = ({
   onUploadSuccess,
   onCancel,
 }) => {
+  const [ytConnected, setYtConnected] = useState<boolean | null>(null); // null = loading
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -26,6 +29,12 @@ export const VideoUploadForm: React.FC<VideoUploadFormProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<VideoUploadProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    googleOAuthApi.getStatus()
+      .then(s => setYtConnected(s.connected))
+      .catch(() => setYtConnected(false));
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -98,6 +107,46 @@ export const VideoUploadForm: React.FC<VideoUploadFormProps> = ({
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   };
+
+  // Loading YouTube connection status
+  if (ytConnected === null) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6 flex items-center gap-3 text-gray-500">
+        <Loader2 className="h-5 w-5 animate-spin" />
+        <span>Checking YouTube connection...</span>
+      </div>
+    );
+  }
+
+  // YouTube not connected — show warning instead of form
+  if (!ytConnected) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold text-gray-900">Upload Course Video</h2>
+          <button onClick={onCancel} className="text-gray-400 hover:text-gray-600">
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+        <div className="flex items-start gap-3 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="font-medium text-yellow-800">YouTube account not connected</p>
+            <p className="text-sm text-yellow-700 mt-1">
+              You need to connect your YouTube channel before uploading videos.
+            </p>
+            <Link
+              href="/teacher/settings"
+              className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 text-sm text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+            >
+              <Youtube className="h-4 w-4" />
+              Connect YouTube in Settings
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">

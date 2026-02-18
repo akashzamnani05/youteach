@@ -52,12 +52,10 @@ export class BatchesService {
 
   static async getTeacherStudents(teacherProfileId: string): Promise<TeacherStudent[]> {
     return query<TeacherStudent>(
-      `SELECT DISTINCT u.id AS user_id, u.full_name, u.email
-       FROM enrollments e
-       JOIN student_profiles sp ON e.student_id = sp.id
+      `SELECT u.id AS user_id, u.full_name, u.email
+       FROM student_profiles sp
        JOIN users u ON sp.user_id = u.id
-       JOIN courses c ON e.course_id = c.id
-       WHERE c.teacher_id = ? AND e.status = 'active'
+       WHERE sp.teacher_id = ? AND u.is_active = TRUE
        ORDER BY u.full_name ASC`,
       [teacherProfileId]
     );
@@ -214,17 +212,16 @@ export class BatchesService {
     );
     if (!batch) throw new Error('Batch not found');
 
-    // Verify student is enrolled with this teacher
-    const enrolled = await queryOne<{ id: string }>(
-      `SELECT e.id
-       FROM enrollments e
-       JOIN student_profiles sp ON e.student_id = sp.id
-       JOIN courses c ON e.course_id = c.id
-       WHERE sp.user_id = ? AND c.teacher_id = ? AND e.status = 'active'
+    // Verify student belongs to this teacher
+    const belongs = await queryOne<{ id: string }>(
+      `SELECT sp.id
+       FROM student_profiles sp
+       JOIN users u ON sp.user_id = u.id
+       WHERE sp.user_id = ? AND sp.teacher_id = ? AND u.is_active = TRUE
        LIMIT 1`,
       [studentUserId, teacherProfileId]
     );
-    if (!enrolled) throw new Error('Student is not enrolled with this teacher');
+    if (!belongs) throw new Error('Student does not belong to this teacher');
 
     await query(
       `INSERT IGNORE INTO batch_students (id, batch_id, student_user_id) VALUES (?, ?, ?)`,

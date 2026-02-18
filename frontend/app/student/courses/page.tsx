@@ -4,7 +4,7 @@
 
 import { useState, useEffect } from 'react';
 import DashboardLayout from '@/components/DashboardLayout';
-import { BookOpen, Search, Clock, User, TrendingUp, CheckCircle, XCircle } from 'lucide-react';
+import { BookOpen, Search, Clock, User, TrendingUp, CheckCircle, XCircle, ImageOff } from 'lucide-react';
 import { getAllCourses, getEnrolledCourses, enrollInCourse, unenrollFromCourse, } from '@/lib/student-course';
 import { CourseWithEnrollment, EnrolledCourse } from '@/types/course-student';
 import { toast } from 'react-hot-toast';
@@ -103,12 +103,17 @@ export default function StudentCourses() {
 
   const renderCourseCard = (course: CourseWithEnrollment) => (
     <div key={course.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden">
-      {course.thumbnail_url && (
+      {course.thumbnail_url ? (
         <img
           src={course.thumbnail_url}
           alt={course.title}
           className="w-full h-48 object-cover"
         />
+      ) : (
+        <div className="w-full h-48 bg-gradient-to-br from-purple-100 to-blue-100 flex flex-col items-center justify-center">
+          <BookOpen className="h-12 w-12 text-purple-300 mb-2" />
+          <span className="text-xs text-purple-400">No thumbnail</span>
+        </div>
       )}
       <div className="p-6">
         <div className="flex items-start justify-between mb-3">
@@ -177,12 +182,17 @@ export default function StudentCourses() {
 
   const renderEnrolledCourseCard = (course: EnrolledCourse) => (
     <div key={course.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden">
-      {course.thumbnail_url && (
+      {course.thumbnail_url ? (
         <img
           src={course.thumbnail_url}
           alt={course.title}
           className="w-full h-48 object-cover"
         />
+      ) : (
+        <div className="w-full h-48 bg-gradient-to-br from-purple-100 to-blue-100 flex flex-col items-center justify-center">
+          <BookOpen className="h-12 w-12 text-purple-300 mb-2" />
+          <span className="text-xs text-purple-400">No thumbnail</span>
+        </div>
       )}
       <div className="p-6">
         <div className="flex items-start justify-between mb-3">

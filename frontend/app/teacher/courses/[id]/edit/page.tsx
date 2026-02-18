@@ -46,6 +46,8 @@ import {
   PlayCircle,
   Eye,
   GripVertical,
+  ImagePlus,
+  ChevronUp,
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
@@ -385,6 +387,21 @@ export default function CourseEditPage() {
   const [modules, setModules] = useState<ModuleWithVideos[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Course details editing
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [detailsSaving, setDetailsSaving] = useState(false);
+  const [detailsTitle, setDetailsTitle] = useState('');
+  const [detailsShortDesc, setDetailsShortDesc] = useState('');
+  const [detailsDesc, setDetailsDesc] = useState('');
+  const [detailsPrice, setDetailsPrice] = useState('0');
+  const [detailsLevel, setDetailsLevel] = useState<'beginner' | 'intermediate' | 'advanced' | 'all'>('all');
+  const [detailsLanguage, setDetailsLanguage] = useState('English');
+  const [detailsRequirements, setDetailsRequirements] = useState('');
+  const [detailsLearningPoints, setDetailsLearningPoints] = useState<string[]>(['']);
+  const [detailsThumbnailFile, setDetailsThumbnailFile] = useState<File | null>(null);
+  const [detailsThumbnailPreview, setDetailsThumbnailPreview] = useState<string | null>(null);
+  const [detailsThumbnailUploading, setDetailsThumbnailUploading] = useState(false);
   
   // Drag state
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -437,6 +454,20 @@ export default function CourseEditPage() {
       const courseData = await courseApi.getCourseById(courseId);
       setCourse(courseData);
 
+      // Pre-fill course details form
+      setDetailsTitle(courseData.title);
+      setDetailsShortDesc(courseData.short_description || '');
+      setDetailsDesc(courseData.description || '');
+      setDetailsPrice(String(courseData.price ?? 0));
+      setDetailsLevel(courseData.level as any);
+      setDetailsLanguage(courseData.language || 'English');
+      setDetailsRequirements(courseData.requirements || '');
+      const points = Array.isArray(courseData.what_you_will_learn) && courseData.what_you_will_learn.length > 0
+        ? courseData.what_you_will_learn as string[]
+        : [''];
+      setDetailsLearningPoints(points);
+      setDetailsThumbnailPreview(courseData.thumbnail_url || null);
+
       const modulesData = await courseApi.getModulesByCourse(courseId);
 
       const modulesWithVideos = await Promise.all(
@@ -456,6 +487,63 @@ export default function CourseEditPage() {
       toast.error('Failed to load course data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Course details handlers
+  const handleDetailsThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error('Image must be less than 5MB'); return; }
+    setDetailsThumbnailFile(file);
+    setDetailsThumbnailPreview(URL.createObjectURL(file));
+  };
+
+  const removeDetailsThumbnail = () => {
+    setDetailsThumbnailFile(null);
+    if (detailsThumbnailPreview?.startsWith('blob:')) URL.revokeObjectURL(detailsThumbnailPreview);
+    setDetailsThumbnailPreview(null);
+  };
+
+  const handleSaveCourseDetails = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!detailsTitle.trim()) { toast.error('Course title is required'); return; }
+
+    try {
+      setDetailsSaving(true);
+
+      let thumbnailUrl: string | undefined | null = undefined;
+      if (detailsThumbnailFile) {
+        setDetailsThumbnailUploading(true);
+        thumbnailUrl = await courseApi.uploadThumbnail(detailsThumbnailFile);
+        setDetailsThumbnailUploading(false);
+        setDetailsThumbnailFile(null);
+      } else if (detailsThumbnailPreview === null && course?.thumbnail_url) {
+        // Teacher removed existing thumbnail
+        thumbnailUrl = null;
+      }
+
+      const updateData: any = {
+        title: detailsTitle.trim(),
+        short_description: detailsShortDesc.trim() || undefined,
+        description: detailsDesc.trim() || undefined,
+        price: parseFloat(detailsPrice) || 0,
+        level: detailsLevel,
+        language: detailsLanguage,
+        requirements: detailsRequirements.trim() || undefined,
+        what_you_will_learn: detailsLearningPoints.filter(p => p.trim()),
+      };
+      if (thumbnailUrl !== undefined) updateData.thumbnail_url = thumbnailUrl;
+
+      const updated = await courseApi.updateCourse(courseId, updateData);
+      setCourse(updated);
+      toast.success('Course details saved');
+      setDetailsOpen(false);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to save course details');
+    } finally {
+      setDetailsSaving(false);
+      setDetailsThumbnailUploading(false);
     }
   };
 
@@ -768,6 +856,175 @@ export default function CourseEditPage() {
             <span>View Mode</span>
           </button>
         </div>
+      </div>
+
+      {/* Course Details Editor */}
+      <div className="bg-white rounded-lg shadow-md mb-6 overflow-hidden">
+        <button
+          onClick={() => setDetailsOpen(!detailsOpen)}
+          className="w-full flex items-center justify-between p-6 text-left hover:bg-gray-50 transition-colors"
+        >
+          <div className="flex items-center gap-3">
+            <Edit className="h-5 w-5 text-blue-600" />
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Course Details</h2>
+              <p className="text-sm text-gray-500 mt-0.5">Edit title, description, thumbnail, and more</p>
+            </div>
+          </div>
+          {detailsOpen ? <ChevronUp className="h-5 w-5 text-gray-400" /> : <ChevronDown className="h-5 w-5 text-gray-400" />}
+        </button>
+
+        {detailsOpen && (
+          <form onSubmit={handleSaveCourseDetails} className="px-6 pb-6 border-t border-gray-100">
+            <div className="space-y-5 mt-5">
+
+              {/* Title */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Course Title *</label>
+                <input
+                  type="text"
+                  value={detailsTitle}
+                  onChange={e => setDetailsTitle(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                  required
+                />
+              </div>
+
+              {/* Short Description */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Short Description</label>
+                <input
+                  type="text"
+                  value={detailsShortDesc}
+                  onChange={e => setDetailsShortDesc(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                  maxLength={200}
+                />
+              </div>
+
+              {/* Thumbnail */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Course Thumbnail <span className="text-gray-400 font-normal">(optional, max 5MB)</span>
+                </label>
+                {detailsThumbnailPreview ? (
+                  <div className="relative w-full max-w-xs">
+                    <img src={detailsThumbnailPreview} alt="Thumbnail" className="w-full h-48 object-cover rounded-lg border border-gray-300" />
+                    <button type="button" onClick={removeDetailsThumbnail} className="absolute top-2 right-2 bg-white rounded-full p-1 shadow hover:bg-red-50 text-gray-600 hover:text-red-600">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center w-full max-w-xs h-36 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
+                    <ImagePlus className="w-8 h-8 text-gray-400 mb-2" />
+                    <span className="text-sm text-gray-500">Click to upload image</span>
+                    <span className="text-xs text-gray-400 mt-1">JPEG, PNG, WebP</span>
+                    <input type="file" accept="image/jpeg,image/jpg,image/png,image/webp" onChange={handleDetailsThumbnailChange} className="hidden" />
+                  </label>
+                )}
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Full Description</label>
+                <textarea
+                  value={detailsDesc}
+                  onChange={e => setDetailsDesc(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                  rows={5}
+                />
+              </div>
+
+              {/* Price / Level / Language */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+                  <input
+                    type="number"
+                    value={detailsPrice}
+                    onChange={e => setDetailsPrice(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                    min="0" step="0.01"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Level</label>
+                  <select
+                    value={detailsLevel}
+                    onChange={e => setDetailsLevel(e.target.value as any)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                  >
+                    <option value="all">All Levels</option>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Language</label>
+                  <input
+                    type="text"
+                    value={detailsLanguage}
+                    onChange={e => setDetailsLanguage(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                  />
+                </div>
+              </div>
+
+              {/* Requirements */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Requirements</label>
+                <textarea
+                  value={detailsRequirements}
+                  onChange={e => setDetailsRequirements(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                  rows={3}
+                />
+              </div>
+
+              {/* What You'll Learn */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">What You'll Learn</label>
+                {detailsLearningPoints.map((point, index) => (
+                  <div key={index} className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      value={point}
+                      onChange={e => {
+                        const updated = [...detailsLearningPoints];
+                        updated[index] = e.target.value;
+                        setDetailsLearningPoints(updated);
+                      }}
+                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+                      placeholder={`Learning point ${index + 1}`}
+                    />
+                    {detailsLearningPoints.length > 1 && (
+                      <button type="button" onClick={() => setDetailsLearningPoints(detailsLearningPoints.filter((_, i) => i !== index))} className="px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button type="button" onClick={() => setDetailsLearningPoints([...detailsLearningPoints, ''])} className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1 mt-1">
+                  <Plus className="w-4 h-4" />
+                  Add learning point
+                </button>
+              </div>
+
+              {/* Save Button */}
+              <div className="flex justify-end pt-2">
+                <button
+                  type="submit"
+                  disabled={detailsSaving}
+                  className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                >
+                  <Save className="w-4 h-4" />
+                  {detailsThumbnailUploading ? 'Uploading thumbnail...' : detailsSaving ? 'Saving...' : 'Save Course Details'}
+                </button>
+              </div>
+            </div>
+          </form>
+        )}
       </div>
 
       {/* Course Content Editor */}

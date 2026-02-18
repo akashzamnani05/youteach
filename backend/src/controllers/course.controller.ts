@@ -4,6 +4,8 @@ import { Request, Response } from 'express';
 import { CourseService } from '../services/course.service';
 import { AuthService } from '../services/auth.service';
 import { CreateCourseData, UpdateCourseData, CreateModuleData, UpdateModuleData } from '../types/course.types';
+import { storageBucket } from '../config/firebase.config';
+import { v4 as uuidv4 } from 'uuid';
 
 export class CourseController {
   // ========== COURSES ==========
@@ -678,5 +680,31 @@ static async unenrollStudent(req: Request, res: Response): Promise<void> {
     });
   }
 }
+
+  // POST /api/courses/thumbnail — upload a course thumbnail to Firebase Storage
+  static async uploadThumbnail(req: Request, res: Response): Promise<void> {
+    try {
+      if (!req.file) {
+        res.status(400).json({ success: false, message: 'No image file provided' });
+        return;
+      }
+
+      const ext = req.file.originalname.split('.').pop()?.toLowerCase() || 'jpg';
+      const fileName = `course-thumbnails/${uuidv4()}.${ext}`;
+      const file = storageBucket.file(fileName);
+
+      await file.save(req.file.buffer, {
+        metadata: { contentType: req.file.mimetype },
+      });
+
+      await file.makePublic();
+
+      const publicUrl = `https://storage.googleapis.com/${storageBucket.name}/${fileName}`;
+
+      res.status(200).json({ success: true, data: { thumbnail_url: publicUrl } });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message || 'Failed to upload thumbnail' });
+    }
+  }
 
 }

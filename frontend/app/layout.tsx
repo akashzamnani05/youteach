@@ -8,7 +8,7 @@ import { AuthProvider } from '@/hooks/useAuth';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'TeachHub - Share Knowledge, Empower Learners',
+  title: 'YouTeach - Share Knowledge, Empower Learners',
   description: 'The ultimate platform for educators to create courses, host webinars, and connect with students.',
 };
 

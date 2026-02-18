@@ -1,55 +1,19 @@
 // src/services/youtube.service.ts
 
-import axios from 'axios';
-import FormData from 'form-data';
 import { google } from 'googleapis';
-import { youtubeConfig, validateYoutubeConfig } from '../config/youtube.config';
 import { VideoUploadMetadata, YouTubeUploadResponse } from '../types/course-video.types';
+import { GoogleOAuthService } from './google-oauth.service';
 import fs from 'fs';
 
 export class YouTubeService {
-  private static oauth2Client: any;
-
-  // Initialize OAuth2 client
-  private static getOAuth2Client() {
-    if (!this.oauth2Client) {
-      validateYoutubeConfig();
-      
-      const { google } = require('googleapis');
-      this.oauth2Client = new google.auth.OAuth2(
-        youtubeConfig.clientId,
-        youtubeConfig.clientSecret,
-        youtubeConfig.redirectUri
-      );
-
-      // Set refresh token
-      this.oauth2Client.setCredentials({
-        refresh_token: youtubeConfig.refreshToken,
-      });
-    }
-
-    return this.oauth2Client;
-  }
-
-  // Get access token
-  private static async getAccessToken(): Promise<string> {
-    const oauth2Client = this.getOAuth2Client();
-    
-    try {
-      const { credentials } = await oauth2Client.refreshAccessToken();
-      return credentials.access_token;
-    } catch (error: any) {
-      throw new Error(`Failed to refresh access token: ${error.message}`);
-    }
-  }
-
-  // Upload video to YouTube
+  // Upload video to the teacher's YouTube channel
   static async uploadVideo(
     filePath: string,
-    metadata: VideoUploadMetadata
+    metadata: VideoUploadMetadata,
+    teacherProfileId: string
   ): Promise<YouTubeUploadResponse> {
     try {
-      const oauth2Client = this.getOAuth2Client();
+      const oauth2Client = await GoogleOAuthService.getTeacherOAuth2Client(teacherProfileId);
       const youtube = google.youtube({ version: 'v3', auth: oauth2Client });
 
       // Upload video
@@ -89,10 +53,10 @@ export class YouTubeService {
     }
   }
 
-  // Get video details
-  static async getVideoDetails(videoId: string): Promise<any> {
+  // Get video details from the teacher's YouTube account
+  static async getVideoDetails(videoId: string, teacherProfileId: string): Promise<any> {
     try {
-      const oauth2Client = this.getOAuth2Client();
+      const oauth2Client = await GoogleOAuthService.getTeacherOAuth2Client(teacherProfileId);
       const youtube = google.youtube({ version: 'v3', auth: oauth2Client });
 
       const response = await youtube.videos.list({
@@ -110,13 +74,14 @@ export class YouTubeService {
     }
   }
 
-  // Update video metadata
+  // Update video metadata on the teacher's YouTube channel
   static async updateVideoMetadata(
     videoId: string,
-    metadata: Partial<VideoUploadMetadata>
+    metadata: Partial<VideoUploadMetadata>,
+    teacherProfileId: string
   ): Promise<void> {
     try {
-      const oauth2Client = this.getOAuth2Client();
+      const oauth2Client = await GoogleOAuthService.getTeacherOAuth2Client(teacherProfileId);
       const youtube = google.youtube({ version: 'v3', auth: oauth2Client });
 
       await youtube.videos.update({
@@ -139,15 +104,13 @@ export class YouTubeService {
     }
   }
 
-  // Delete video
-  static async deleteVideo(videoId: string): Promise<void> {
+  // Delete video from the teacher's YouTube channel
+  static async deleteVideo(videoId: string, teacherProfileId: string): Promise<void> {
     try {
-      const oauth2Client = this.getOAuth2Client();
+      const oauth2Client = await GoogleOAuthService.getTeacherOAuth2Client(teacherProfileId);
       const youtube = google.youtube({ version: 'v3', auth: oauth2Client });
 
-      await youtube.videos.delete({
-        id: videoId,
-      });
+      await youtube.videos.delete({ id: videoId });
     } catch (error: any) {
       throw new Error(`Failed to delete video: ${error.message}`);
     }

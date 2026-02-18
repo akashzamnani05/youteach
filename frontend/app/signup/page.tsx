@@ -107,7 +107,7 @@ export default function SignupPage() {
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center space-x-2">
               <BookOpen className="h-10 w-10 text-blue-600" />
-              <span className="text-3xl font-bold text-gray-900">TeachHub</span>
+              <span className="text-3xl font-bold text-gray-900">YouTeach</span>
             </Link>
             <p className="mt-2 text-gray-600">Choose how you want to join</p>
           </div>
@@ -159,7 +159,7 @@ export default function SignupPage() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center space-x-2">
             <BookOpen className="h-10 w-10 text-blue-600" />
-            <span className="text-3xl font-bold text-gray-900">TeachHub</span>
+            <span className="text-3xl font-bold text-gray-900">YouTeach</span>
           </Link>
           <p className="mt-2 text-gray-600">
             Create your {role} account

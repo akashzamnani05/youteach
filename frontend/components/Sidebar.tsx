@@ -4,7 +4,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, LayoutDashboard, Video, Users, Settings, X, Menu, FolderOpen, Megaphone, Layers } from 'lucide-react';
+import { BookOpen, LayoutDashboard, Video, Users, Settings, X, Menu, FolderOpen, Megaphone, Layers, CalendarDays } from 'lucide-react';
 import { useState } from 'react';
 
 interface NavItem {
@@ -29,6 +29,7 @@ export default function Sidebar({ role }: SidebarProps) {
     { name: 'Documents', href: '/teacher/documents', icon: FolderOpen },
     { name: 'Announcements', href: '/teacher/announcements', icon: Megaphone },
     { name: 'Batches', href: '/teacher/batches', icon: Layers },
+    { name: 'Calendar', href: '/teacher/calendar', icon: CalendarDays },
     { name: 'Settings', href: '/teacher/settings', icon: Settings },
   ];
 
@@ -39,6 +40,7 @@ export default function Sidebar({ role }: SidebarProps) {
     { name: 'Documents', href: '/student/documents', icon: FolderOpen },
     { name: 'Announcements', href: '/student/announcements', icon: Megaphone },
     { name: 'Batches', href: '/student/batches', icon: Layers },
+    { name: 'Calendar', href: '/student/calendar', icon: CalendarDays },
     { name: 'Settings', href: '/student/settings', icon: Settings },
   ];
 
@@ -74,7 +76,7 @@ export default function Sidebar({ role }: SidebarProps) {
             <BookOpen className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-gray-900">TeachHub</h1>
+            <h1 className="text-xl font-bold text-gray-900">YouTeach</h1>
             <p className="text-xs text-gray-500 capitalize">{role} Portal</p>
           </div>
         </div>
@@ -106,7 +108,7 @@ export default function Sidebar({ role }: SidebarProps) {
         {/* Footer */}
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
           <div className="text-xs text-gray-500 text-center">
-            © 2024 TeachHub
+            © 2024 YouTeach
           </div>
         </div>
       </aside>

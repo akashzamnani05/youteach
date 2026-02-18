@@ -81,15 +81,16 @@ export class CourseService {
       await connection.execute(
         `INSERT INTO courses (
           teacher_id, title, slug, description, short_description,
-          price, currency, level, language, requirements, 
+          thumbnail_url, price, currency, level, language, requirements,
           what_you_will_learn, is_published, enrollment_count
-        ) VALUES (?, ?, ?, ?, ?, ?, 'USD', ?, ?, ?, ?, FALSE, 0)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, 'USD', ?, ?, ?, ?, TRUE, 0)`,
         [
           teacherId,
           data.title,
           slug,
           data.description || null,
           data.short_description || null,
+          data.thumbnail_url || null,
           data.price || 0,
           data.level || 'all',
           data.language || 'English',

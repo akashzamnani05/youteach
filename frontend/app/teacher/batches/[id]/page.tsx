@@ -231,7 +231,7 @@ export default function TeacherBatchDetailPage() {
                               href={`/teacher/batches/${id}/sessions/${session.id}`}
                               className="text-sm text-blue-600 hover:underline font-medium"
                             >
-                              Take Attendance →
+                              View Details →
                             </Link>
                             <button
                               onClick={() => handleDeleteSession(session.id, formatDate(session.session_date))}
@@ -266,7 +266,7 @@ export default function TeacherBatchDetailPage() {
                               href={`/teacher/batches/${id}/sessions/${session.id}`}
                               className="text-sm text-blue-600 hover:underline font-medium"
                             >
-                              View Attendance →
+                              View Details →
                             </Link>
                             <button
                               onClick={() => handleDeleteSession(session.id, formatDate(session.session_date))}

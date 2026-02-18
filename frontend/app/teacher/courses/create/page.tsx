@@ -10,16 +10,18 @@ import { courseApi } from '@/lib/course';
 import { courseVideoApi } from '@/lib/courseVideo';
 import { CourseModule } from '@/types/course.types';
 import { CourseVideo } from '@/types/courseVideo.types';
-import { 
-  BookOpen, 
-  Plus, 
-  Trash2, 
-  Video, 
+import {
+  BookOpen,
+  Plus,
+  Trash2,
+  Video,
   Save,
   ArrowLeft,
   ChevronDown,
   ChevronUp,
-  ExternalLink
+  ExternalLink,
+  ImagePlus,
+  X,
 } from 'lucide-react';
 
 type Step = 'details' | 'modules' | 'preview';
@@ -40,6 +42,11 @@ export default function CreateCoursePage() {
   const [language, setLanguage] = useState('English');
   const [requirements, setRequirements] = useState('');
   const [learningPoints, setLearningPoints] = useState<string[]>(['']);
+
+  // Thumbnail
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null);
+  const [thumbnailUploading, setThumbnailUploading] = useState(false);
 
   // Modules
   const [modules, setModules] = useState<CourseModule[]>([]);
@@ -63,10 +70,19 @@ export default function CreateCoursePage() {
       setSaving(true);
       setError(null);
 
+      // Upload thumbnail first if one was selected
+      let thumbnailUrl: string | undefined;
+      if (thumbnailFile) {
+        setThumbnailUploading(true);
+        thumbnailUrl = await courseApi.uploadThumbnail(thumbnailFile);
+        setThumbnailUploading(false);
+      }
+
       const courseData = {
         title: title.trim(),
         short_description: shortDescription.trim() || undefined,
         description: description.trim() || undefined,
+        thumbnail_url: thumbnailUrl,
         price: parseFloat(price) || 0,
         level,
         language,
@@ -82,6 +98,24 @@ export default function CreateCoursePage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleThumbnailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Thumbnail must be less than 5MB');
+      return;
+    }
+    setThumbnailFile(file);
+    setThumbnailPreview(URL.createObjectURL(file));
+    setError(null);
+  };
+
+  const removeThumbnail = () => {
+    setThumbnailFile(null);
+    if (thumbnailPreview) URL.revokeObjectURL(thumbnailPreview);
+    setThumbnailPreview(null);
   };
 
   const addLearningPoint = () => {
@@ -276,6 +310,41 @@ export default function CreateCoursePage() {
               <p className="text-xs text-gray-500 mt-1">{shortDescription.length}/200 characters</p>
             </div>
 
+            {/* Thumbnail */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Course Thumbnail <span className="text-gray-400 font-normal">(optional, max 5MB)</span>
+              </label>
+              {thumbnailPreview ? (
+                <div className="relative w-full max-w-xs">
+                  <img
+                    src={thumbnailPreview}
+                    alt="Thumbnail preview"
+                    className="w-full h-48 object-cover rounded-lg border border-gray-300"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeThumbnail}
+                    className="absolute top-2 right-2 bg-white rounded-full p-1 shadow hover:bg-red-50 text-gray-600 hover:text-red-600"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center w-full max-w-xs h-36 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-colors">
+                  <ImagePlus className="w-8 h-8 text-gray-400 mb-2" />
+                  <span className="text-sm text-gray-500">Click to upload image</span>
+                  <span className="text-xs text-gray-400 mt-1">JPEG, PNG, WebP</span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    onChange={handleThumbnailChange}
+                    className="hidden"
+                  />
+                </label>
+              )}
+            </div>
+
             {/* Description */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -390,7 +459,9 @@ export default function CreateCoursePage() {
                 className="flex items-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
                 <Save className="w-5 h-5" />
-                <span>{saving ? 'Saving...' : 'Save & Continue'}</span>
+                <span>
+                  {thumbnailUploading ? 'Uploading thumbnail...' : saving ? 'Saving...' : 'Save & Continue'}
+                </span>
               </button>
             </div>
           </div>
