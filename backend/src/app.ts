@@ -33,7 +33,7 @@ const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:3001',
   process.env.FRONTEND_URL,
-].filter(Boolean) as string[];
+].filter(Boolean).map(o => (o as string).trim()) as string[];
 
 console.log('CORS allowed origins:', allowedOrigins);
 
