@@ -29,9 +29,28 @@ dotenv.config();
 const app: Application = express();
 
 // CORS configuration
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  process.env.FRONTEND_URL,
+].filter(Boolean) as string[];
+
+console.log('CORS allowed origins:', allowedOrigins);
+
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
-  credentials: true, // Allow cookies
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Allow requests with no origin (mobile apps, curl, Postman, server-to-server)
+    if (!origin) return callback(null, true);
+    // Strip trailing slash for comparison
+    const normalised = origin.replace(/\/$/, '');
+    if (allowedOrigins.map(o => o.replace(/\/$/, '')).includes(normalised)) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked origin: ${origin}`);
+      callback(new Error(`CORS: origin ${origin} not allowed`));
+    }
+  },
+  credentials: true,
   optionsSuccessStatus: 200,
 };
 
