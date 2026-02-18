@@ -151,10 +151,6 @@ export default function StudentCourses() {
         )}
 
         <div className="flex items-center justify-between pt-4 border-t">
-          <div className="text-2xl font-bold text-purple-600">
-            {course.currency === 'USD' ? '$' : course.currency} {course.price}
-          </div>
-          
           {course.is_enrolled ? (
             <div className="flex items-center gap-2">
               <span className="text-sm text-green-600 font-medium">Enrolled</span>

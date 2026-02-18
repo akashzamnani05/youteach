@@ -30,8 +30,6 @@ function SignupContent() {
   const [headline, setHeadline] = useState('');
   const [specializations, setSpecializations] = useState('');
   const [experienceYears, setExperienceYears] = useState('');
-  const [hourlyRate, setHourlyRate] = useState('');
-
   // Student specific
   const [dateOfBirth, setDateOfBirth] = useState('');
   const [interests, setInterests] = useState('');
@@ -73,7 +71,6 @@ function SignupContent() {
           headline: headline || undefined,
           specializations: specializations ? specializations.split(',').map(s => s.trim()) : undefined,
           experience_years: experienceYears ? parseInt(experienceYears) : undefined,
-          hourly_rate: hourlyRate ? parseFloat(hourlyRate) : undefined,
         };
         await authApi.signupTeacher(teacherData);
       } else {
@@ -332,20 +329,6 @@ function SignupContent() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Hourly Rate ($)
-                    </label>
-                    <input
-                      type="number"
-                      value={hourlyRate}
-                      onChange={(e) => setHourlyRate(e.target.value)}
-                      min="0"
-                      step="0.01"
-                      className="block w-full px-3 py-3 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="e.g., 50.00"
-                    />
-                  </div>
                 </div>
               </div>
             )}

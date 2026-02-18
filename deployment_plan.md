@@ -35,11 +35,11 @@ Make sure your latest code is pushed to GitHub before connecting to Railway.
 2. Wait for it to provision
 3. Click the MySQL service → go to **Variables** tab
 4. Note down these 5 values — you'll need them for the backend:
-   - `MYSQLHOST`
-   - `MYSQLPORT`
-   - `MYSQLUSER`
-   - `MYSQLPASSWORD`
-   - `MYSQLDATABASE`
+   - `MYSQLHOST` = mysql.railway.internal
+   - `MYSQLPORT` = 3306
+   - `MYSQLUSER` = root
+   - `MYSQLPASSWORD` = qjInPxKwrlERpYufMMFKhxiwMNNobzQW
+   - `MYSQLDATABASE` = railway
 5. Click **Connect** (in the MySQL service) → open the MySQL shell or use a GUI like TablePlus
 6. Copy-paste the entire contents of `database/mysql_schema.sql` and run it
 
@@ -179,3 +179,10 @@ Test these after both services are deployed and green:
 ## Re-deployment
 
 Every `git push` to your connected branch triggers an automatic redeploy on Railway. No manual action needed after the initial setup.
+
+
+
+
+
+Youtube_redirect_ui in back variables
+tranquil-transformation.railway.internal - generate domain private

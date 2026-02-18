@@ -36,7 +36,6 @@ export interface TeacherSignupData {
   headline?: string;
   specializations?: string[];
   experience_years?: number;
-  hourly_rate?: number;
 }
 
 export interface StudentSignupData {

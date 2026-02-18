@@ -25,7 +25,6 @@ export interface TeacherProfile {
   total_students: number;
   total_courses: number;
   is_verified: boolean;
-  hourly_rate?: number;
   social_links?: Record<string, string>;
   created_at: Date;
   updated_at: Date;
@@ -79,7 +78,6 @@ export interface TeacherSignupData extends SignupData {
   headline?: string;
   specializations?: string[];
   experience_years?: number;
-  hourly_rate?: number;
 }
 
 export interface StudentSignupData extends SignupData {

@@ -394,7 +394,6 @@ export default function CourseEditPage() {
   const [detailsTitle, setDetailsTitle] = useState('');
   const [detailsShortDesc, setDetailsShortDesc] = useState('');
   const [detailsDesc, setDetailsDesc] = useState('');
-  const [detailsPrice, setDetailsPrice] = useState('0');
   const [detailsLevel, setDetailsLevel] = useState<'beginner' | 'intermediate' | 'advanced' | 'all'>('all');
   const [detailsLanguage, setDetailsLanguage] = useState('English');
   const [detailsRequirements, setDetailsRequirements] = useState('');
@@ -458,7 +457,6 @@ export default function CourseEditPage() {
       setDetailsTitle(courseData.title);
       setDetailsShortDesc(courseData.short_description || '');
       setDetailsDesc(courseData.description || '');
-      setDetailsPrice(String(courseData.price ?? 0));
       setDetailsLevel(courseData.level as any);
       setDetailsLanguage(courseData.language || 'English');
       setDetailsRequirements(courseData.requirements || '');
@@ -527,7 +525,6 @@ export default function CourseEditPage() {
         title: detailsTitle.trim(),
         short_description: detailsShortDesc.trim() || undefined,
         description: detailsDesc.trim() || undefined,
-        price: parseFloat(detailsPrice) || 0,
         level: detailsLevel,
         language: detailsLanguage,
         requirements: detailsRequirements.trim() || undefined,
@@ -935,18 +932,8 @@ export default function CourseEditPage() {
                 />
               </div>
 
-              {/* Price / Level / Language */}
+              {/* Level / Language */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
-                  <input
-                    type="number"
-                    value={detailsPrice}
-                    onChange={e => setDetailsPrice(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-                    min="0" step="0.01"
-                  />
-                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Level</label>
                   <select

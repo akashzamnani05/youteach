@@ -89,10 +89,6 @@ export const validateTeacherSignup: ValidationChain[] = [
     .optional()
     .isInt({ min: 0, max: 100 })
     .withMessage('Experience years must be between 0 and 100'),
-  body('hourly_rate')
-    .optional()
-    .isFloat({ min: 0 })
-    .withMessage('Hourly rate must be a positive number'),
 ];
 
 // Student signup validation

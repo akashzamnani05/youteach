@@ -64,7 +64,7 @@ export class AuthService {
   static async signupTeacher(
     data: TeacherSignupData
   ): Promise<{ user: UserWithRole; tokens: AuthTokens }> {
-    const { email, password, full_name, phone, bio, headline, specializations, experience_years, hourly_rate } = data;
+    const { email, password, full_name, phone, bio, headline, specializations, experience_years } = data;
 
     return await transaction(async (connection) => {
       // Check if email exists
@@ -109,9 +109,9 @@ export class AuthService {
       // Insert teacher profile (MySQL will auto-generate UUID)
       await connection.execute(
         `INSERT INTO teacher_profiles (
-          user_id, bio, headline, specializations, experience_years, 
-          website_slug, hourly_rate, rating, total_students, total_courses, is_verified
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, 0.00, 0, 0, FALSE)`,
+          user_id, bio, headline, specializations, experience_years,
+          website_slug, rating, total_students, total_courses, is_verified
+        ) VALUES (?, ?, ?, ?, ?, ?, 0.00, 0, 0, FALSE)`,
         [
           userId,
           bio || null,
@@ -119,7 +119,6 @@ export class AuthService {
           specializations ? JSON.stringify(specializations) : null,
           experience_years || null,
           websiteSlug,
-          hourly_rate || null,
         ]
       );
 

@@ -40,7 +40,6 @@ CREATE TABLE teacher_profiles (
     total_students INT DEFAULT 0,
     total_courses INT DEFAULT 0,
     is_verified BOOLEAN DEFAULT FALSE,
-    hourly_rate DECIMAL(10,2),
     social_links JSON,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

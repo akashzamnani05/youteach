@@ -37,7 +37,6 @@ export default function CreateCoursePage() {
   const [title, setTitle] = useState('');
   const [shortDescription, setShortDescription] = useState('');
   const [description, setDescription] = useState('');
-  const [price, setPrice] = useState('0');
   const [level, setLevel] = useState<'beginner' | 'intermediate' | 'advanced' | 'all'>('all');
   const [language, setLanguage] = useState('English');
   const [requirements, setRequirements] = useState('');
@@ -83,7 +82,6 @@ export default function CreateCoursePage() {
         short_description: shortDescription.trim() || undefined,
         description: description.trim() || undefined,
         thumbnail_url: thumbnailUrl,
-        price: parseFloat(price) || 0,
         level,
         language,
         requirements: requirements.trim() || undefined,
@@ -359,22 +357,8 @@ export default function CreateCoursePage() {
               />
             </div>
 
-            {/* Price and Level */}
+            {/* Level */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Price ($)
-                </label>
-                <input
-                  type="number"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-                  min="0"
-                  step="0.01"
-                />
-              </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Level

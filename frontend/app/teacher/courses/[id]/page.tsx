@@ -19,7 +19,6 @@ import {
   Video,
   Clock,
   Users,
-  DollarSign,
   Globe,
   CheckCircle,
   XCircle,
@@ -259,16 +258,6 @@ export default function CourseDetailPage() {
                   <span className="text-sm">Students</span>
                 </span>
                 <span className="font-semibold text-gray-900">{course.enrollment_count}</span>
-              </div>
-
-              <div className="flex items-center justify-between text-gray-700">
-                <span className="flex items-center space-x-2">
-                  <DollarSign className="w-5 h-5 text-gray-500" />
-                  <span className="text-sm">Price</span>
-                </span>
-                <span className="font-semibold text-gray-900">
-                  ${course.price} {course.currency}
-                </span>
               </div>
 
               <div className="flex items-center justify-between text-gray-700">

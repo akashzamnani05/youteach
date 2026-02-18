@@ -15,7 +15,6 @@ import {
   Edit, 
   Users, 
   Clock,
-  DollarSign,
   Globe,
   CheckCircle,
   XCircle
@@ -194,10 +193,6 @@ export default function TeacherCourses() {
                       <span>{course.duration_hours}h</span>
                     </div>
                   )}
-                  <div className="flex items-center space-x-1">
-                    <DollarSign className="w-4 h-4" />
-                    <span>${course.price}</span>
-                  </div>
                   <div className="flex items-center space-x-1">
                     <Globe className="w-4 h-4" />
                     <span>{course.language}</span>
