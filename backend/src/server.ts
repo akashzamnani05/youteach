@@ -15,7 +15,7 @@ const startServer = async () => {
     await testConnection();
 
     // Start listening
-    app.listen(PORT, () => {
+    app.listen(Number(PORT), '0.0.0.0', () => {
       console.log(`🚀 Server is running on port ${PORT}`);
       console.log(`📍 Environment: ${process.env.NODE_ENV || 'development'}`);
       console.log(`🔗 API URL: http://localhost:${PORT}`);
